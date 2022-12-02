@@ -24,8 +24,9 @@ class KNNRecommender(Recommender):
             .fit(self.sparse_matrix)
 
         
-    def recommend(self, ratings: dict[int, int]) -> list[str]:
+    def recommend(self, ratings):
         recommendations = set()
+        recommended_movies = []
 
         liked_movies = [movieId for movieId in ratings if ratings[movieId] > 3]
         # TODO: use the rating itself to determine how many movies from that cluster to recommend
@@ -33,10 +34,10 @@ class KNNRecommender(Recommender):
         for movie_id in liked_movies:
             _, ids = self.model.kneighbors(self.sparse_matrix[movie_id], n_neighbors=5)
             recommendations.update(*(set(rec_id for rec_id in x if rec_id not in ratings) for x in ids))
-            # TODO: return strings and not movieIds
-            # recommendations.update({self.movies[self.movies["movieId"] == rec_id]["title"].iloc[0] for rec_id in ids[0] if rec_id not in ratings})
+            
+        for movie_id in recommendations:
+            temp = self.movies.loc[self.movies['movieId'] == movie_id, 'title']
+            if not temp.empty:
+                recommended_movies.append(temp.item())
 
-        return recommendations
-
-
-print(KNNRecommender().recommend({3: 5}))
+        return recommended_movies
