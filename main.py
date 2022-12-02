@@ -1,15 +1,16 @@
-movie_ids = []
-ratings = []
+from knn_recommender import KNNRecommender
+
+user_ratings = {}
 
 while True:
     try:
         movie_id = int(input("Enter a movie ID (press enter to quit): "))
         rating = int(input("Enter rating for movie " + str(movie_id) + ": "))
 
-        movie_ids.append(movie_id)
-        ratings.append(rating)
+        user_ratings[movie_id] = rating
     except:
         break
 
-print("Movie IDs: ", movie_ids)
-print("Ratings: ", ratings)
+print("KNN Movie Recommendations:")
+knn_rec = KNNRecommender()
+print(knn_rec.recommend(user_ratings))
