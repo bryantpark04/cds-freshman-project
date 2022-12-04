@@ -11,7 +11,7 @@ from recommender import Recommender
 class NN_Recommender(Recommender):
     def __init__(self):
         # defining constants
-        self.n_input, self.n_hidden, self.n_out, self.batch_size, self.learning_rate = 19, 20, 1, 3, 0.01
+        self.n_input, self.n_hidden, self.n_out, self.batch_size, self.learning_rate = 19, 20, 1, 3, 0.05
 
         # process data
         self.movies = pd.read_csv("datasets/ml-latest-small/movies.csv")
@@ -35,14 +35,14 @@ class NN_Recommender(Recommender):
         data_x, data_y = self.process_data(ratings)
         self.train_model(data_x, data_y)
 
-        # for some random sample of 100 movies, add to recommended if not already rated and model predicts value > 0.9
+        # for some random sample of 100 movies, add to recommended if not already rated and model predicts value above a threshold
         recommendations = []
         for cur_movie in random.sample(self.movies['movieId'].values.tolist(), 100):
             if cur_movie in ratings.keys():
                 continue
             cur_genres = torch.tensor([self.movie_to_genres_arr(cur_movie)])
             cur_genres = cur_genres.to(torch.float32)
-            if(self.model(cur_genres) > 0.9):
+            if self.model(cur_genres) > 0.7:
                 recommendations.append(cur_movie)
 
         # convert recommendations to movie names
@@ -80,7 +80,7 @@ class NN_Recommender(Recommender):
 
     # train the neural network
     def train_model(self, data_x, data_y):
-        for epoch in range(5000):
+        for epoch in range(100):
             pred_y = self.model(data_x)
             loss = self.loss_function(pred_y, data_y)
 
